@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
@@ -14,16 +15,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         number_of_users = options['number_of_users']
-        # for i in range(number_of_users):
-        #     User.objects.create_user(username=fake.name().lower().replace(' ', ''),
-        #                              email=fake.name().lower().replace(' ', '') + '@mail.com',
-        #                              password=fake.name().lower().replace(' ', ''))
-        users = []
-        for i in range(number_of_users):
-            u = User(username=fake.name().lower().replace(' ', ''),
-                     email=fake.name().lower().replace(' ', '') + '@mail.com',
-                     password=fake.name().lower().replace(' ', ''))
-            users.append(u)
+        users = [User(username=fake.name().lower().replace(' ', ''),
+                      email=fake.email(),
+                      password=make_password(fake.password(length=10, special_chars=False)))
+                 for i in range(number_of_users)]
         User.objects.bulk_create(users)
 
         self.stdout.write(self.style.SUCCESS(f'Successfully created {number_of_users} user(s)'))
